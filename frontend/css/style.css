@@ -1,0 +1,56 @@
+/* Your custom styles go here.
+   Use Bootstrap classes first, and write your own CSS only when you need to. */
+
+
+:root {
+   --background-color: #f2f2f294;
+   --box-color: #ffffff;
+   --text-color: #212529;
+   --border-color: #f2f2f2;
+}
+
+[data-bs-theme="dark"] {
+    --background-color: #212529;
+    --box-color: #2b3035;
+    --text-color: #ffffff;
+    --border-color: #495057;
+}
+
+.summary-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5rem;
+    margin-top: 1rem;
+}
+
+.box {
+   border-radius: 10px;
+   border: 2px solid var(--border-color);
+   background: var(--box-color);
+   height: 120px;
+   align-items: center;
+  color: var(--text-color);
+
+
+}
+
+.webBackgroundColor {
+
+   background-color: var(--background-color);
+
+
+}
+
+.form {
+   border-radius: 10px;
+   border: 2px solid var(--border-color);
+   background-color:var(--box-color);
+   margin-top: 38px;
+   padding: 20px;
+   color: var(--text-color);
+}
+
+p {
+   margin-top: 0;
+   margin-bottom: 0rem;
+}

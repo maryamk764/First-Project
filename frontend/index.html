@@ -1,0 +1,276 @@
+<!-- PHASE 2: build the page here.
+
+       Your backend (Phase 1) is already running with real data in it,
+       so build this page straight against the API - there is no
+       in-memory or localStorage stage this time.
+
+       1. Navbar
+       2. Summary cards: total amount, number of expenses, highest expense
+       3. Form to add an expense: title, amount, category (select), date
+       4. Filter by category (with an "All" option)
+       5. Table: title, amount, category, date, an edit button, a delete button
+
+       Remember: the table rows must be built with JavaScript (DOM),
+       not written by hand in this file. -->
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Expense Tracker</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body class="webBackgroundColor">
+
+
+  <header>
+    <nav class="navbar bg-dark border-bottom border-body text-white">
+      <h3 class="ps-4">Expense Tracker</h3>
+
+      <div class="form-check form-switch pe-4">
+        <input class="form-check-input" type="checkbox" role="switch" id="darkMode">
+        <label class="form-check-label" for="darkMode">Dark Mode</label>
+      </div>
+    </nav>
+
+
+  </header>
+
+  <main>
+
+
+    <div class="alert alert-danger d-none" role="alert" id="alertBox"></div>
+
+    <div class="d-flex justify-content-center d-none" id="spinner">
+      <div class="spinner-border" role="status">
+        <span class="visually-hidden">Loading...</span>
+      </div>
+    </div>
+
+
+    <div class="container ">
+      <div class="summary-grid text-center">
+
+        <div class="card box">
+          <div class="card-body">
+            <p class="card-text">Total</p>
+            <h3 id="totalAmount">0.00</h3>
+          </div>
+
+        </div>
+
+
+        <div class="card  box">
+          <div class="card-body">
+            <p class="card-text">Number of expenses</p>
+            <h3 id="expensesCount">0</h3>
+          </div>
+
+        </div>
+
+
+        <div class="card  box">
+          <div class="card-body">
+            <p class="card-text">highest expense</p>
+            <h3 id="highestExpense" style="margin-bottom: 0rem;">0.00</h3>
+            <p class="card-text" id="highestTitle"></p>
+          </div>
+
+        </div>
+
+      </div>
+    </div>
+
+
+    <div class="container form" id="inputForm">
+
+      <h5>Add expense</h5>
+      <form class="row g-3 ">
+        <div class="col-md-4">
+          <label for="title" class="form-label">Title</label>
+          <input type="text" class="form-control" id="title" placeholder="Lunch" required>
+
+        </div>
+        <div class="col-md-2">
+          <label for="amount" class="form-label">Amount</label>
+          <input type="number" class="form-control" id="amount" placeholder="4.5" min="0.01" step="0.01" required>
+
+        </div>
+
+
+        <div class="col-md-3">
+          <label for="category" class="form-label">Category</label>
+          <select class="form-select" id="category" required>
+            <option selected disabled value="">Choose...</option>
+            <option value="Food">Food</option>
+            <option value="Transport">Transport</option>
+            <option value="Bills">Bills</option>
+            <option value="Entertainment">Entertainment</option>
+            <option value="Other">Other</option>
+          </select>
+        </div>
+
+        <div class="col-md-3">
+          <label for="date" class="form-label">Date</label>
+          <input type="date" class="form-control" id="date" placeholder="4.5" required>
+
+        </div>
+
+        <div class="col-12">
+          <button class="btn btn-primary" type="submit" id="AddExpenseBtn">Add expense</button>
+        </div>
+      </form>
+
+    </div>
+
+
+    <div class="container form">
+
+      <div class="row">
+        <div class="col mt-2">
+          <h5>Expenses</h5>
+        </div>
+        <div class="col-md-3 d-flex align-items-center gap-2">
+          <label for="categoryFilter" class="form-label mb-0">
+            Category
+          </label>
+          <select class="form-select" id="categoryFilter" required>
+            <option value="All">All</option>
+            <option value="Food">Food</option>
+            <option value="Transport">Transport</option>
+            <option value="Bills">Bills</option>
+            <option value="Entertainment">Entertainment</option>
+            <option value="Other">Other</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="table-responsive">
+        <table class="table table-striped">
+          <thead>
+            <tr>
+              <th scope="col" style="width: 29%;">Title</th>
+              <th scope="col" style="width: 8%;">Amount</th>
+              <th scope="col" style="width: 20%;">Category</th>
+              <th scope="col" style="width: 23%; text-align:center;">Date</th>
+              <th scope="col" style="width: 20%; text-align: right;">Actions</th>
+            </tr>
+          </thead>
+
+          <tbody id="tbody">
+          </tbody>
+        </table>
+
+
+
+
+
+      </div>
+
+
+    </div>
+
+
+
+
+
+
+
+    <!-- Bootstrap Modal -->
+    <div class="modal fade" id="editForm" tabindex="-1">
+
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+
+          <form>
+
+            <div class="modal-header">
+              <h5 class="modal-title" id="editFormLabel">
+                Edit expense
+              </h5>
+
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+
+            <div class="modal-body">
+
+              <div class="mb-3">
+                <label for="editTitle" class="form-label">
+                  Title
+                </label>
+                <input type="text" class="form-control" id="editTitle" required>
+              </div>
+
+              <div class="mb-3">
+                <label for="editAmount" class="form-label">
+                  Amount
+                </label>
+                <input type="number" class="form-control" id="editAmount" min="0.01" step="0.01" required>
+              </div>
+
+              <div class="mb-3">
+                <label for="editCategory" class="form-label">
+                  Category
+                </label>
+                <select class="form-select" id="editCategory" required>
+                  <option value="" disabled>
+                    Choose...
+                  </option>
+                  <option value="Food">Food</option>
+                  <option value="Transport">Transport</option>
+                  <option value="Bills">Bills</option>
+                  <option value="Entertainment">Entertainment</option>
+                  <option value="Other">Other</option>
+                </select>
+              </div>
+
+              <div class="mb-3">
+                <label for="editDate" class="form-label">
+                  Date
+                </label>
+                <input type="date" class="form-control" id="editDate" required>
+              </div>
+
+            </div>
+
+            <div class="modal-footer">
+
+              <button type="button" class="btn btn-secondary" id="cancelExpenseBtn" data-bs-dismiss="modal">
+                Cancel
+              </button>
+
+              <button type="submit" class="btn btn-primary" id="saveExpenseBtn">
+                Save changes
+              </button>
+
+            </div>
+
+          </form>
+
+        </div>
+      </div>
+    </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="js/app.js"></script>
+</body>
+
+</html>
