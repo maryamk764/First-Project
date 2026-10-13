@@ -23,6 +23,7 @@
 //   - The API is at http://localhost:3000/api/expenses (see the Roadmap).
 
 const darkMode = document.getElementById("darkMode");
+let categoryChart;
 
 let expensesList = [];
 const API_URL = "http://localhost:3000/api/expenses";
@@ -31,6 +32,8 @@ const totalAmount = document.getElementById("totalAmount");
 const expensesCount = document.getElementById("expensesCount");
 const highestExpense = document.getElementById("highestExpense");
 const highestTitle = document.getElementById("highestTitle");
+const minExpense=document.getElementById("minExpense");
+const minTitle=document.getElementById("mintTitle");
 const categoryFilter = document.getElementById("categoryFilter");
 
 
@@ -39,6 +42,7 @@ const amount = document.getElementById("amount");
 const category = document.getElementById("category");
 const date = document.getElementById("date");
 const AddExpenseBtn = document.getElementById("AddExpenseBtn");
+const exportBtn = document.getElementById("exportBtn");
 
 
 const editForm = document.getElementById("editForm");
@@ -75,6 +79,87 @@ function showAlert(message) {
 }
 
 
+
+exportBtn.addEventListener("click", function () {
+
+    if (expensesList.length === 0) {
+        showAlert("No expenses to export");
+        return;
+    }
+
+    const headers = ["Title", "Amount", "Category", "Date"];
+
+    const rows = expensesList.map(expense => [
+        expense.title,
+        expense.amount,
+        expense.category,
+        expense.date
+    ]);
+
+    const csvContent = [headers, ...rows]
+        .map(row =>
+            row.map(value =>
+                `"${String(value).replace(/"/g, '""')}"`
+            ).join(",")
+        )
+        .join("\r\n");
+
+    const blob = new Blob(
+        ["\uFEFF" + csvContent],
+        { type: "text/csv;charset=utf-8;" }
+    );
+
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+
+    link.href = url;
+    link.download = "expenses.csv";
+    link.click();
+
+    URL.revokeObjectURL(url);
+});
+
+
+function renderCategoryChart(list) {
+    const categories = ["Food", "Transport", "Bills", "Entertainment", "Other"];
+
+    const totals = categories.map(category => {
+        return list
+            .filter(expense => expense.category === category)
+            .reduce((sum, expense) => sum + Number(expense.amount), 0);
+    });
+
+    const ctx = document.getElementById("categoryChart");
+
+    if (categoryChart) {
+        categoryChart.destroy();
+    }
+
+    categoryChart = new Chart(ctx, {
+        type: "pie",
+        data: {
+            labels: categories,
+            datasets: [{
+                data: totals,
+                backgroundColor: [
+                    "#41a047",
+                    "#7728ec",
+                    "#df4c4c",
+                    "#d9d930",
+                    "#8a8888"
+                ]
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    position: "bottom"
+                }
+            }
+        }
+    });
+}
 
 
 async function getExpenses() {
@@ -347,31 +432,42 @@ function renderSummary(list) {
 
     let total = 0;
     let max = 0;
+    let min = list.length > 0 ? Number(list[0].amount) : 0;
+
     let highestIndex = -1;
+    let minIndex = -1;
 
     for (let i = 0; i < list.length; i++) {
 
-        total += list[i].amount;
-        if (list[i].amount > max) {
+        total += Number(list[i].amount);
 
-            max = list[i].amount;
+        if (Number(list[i].amount) > max) {
+            max = Number(list[i].amount);
             highestIndex = i;
+        }
 
+        if (Number(list[i].amount) < min) {
+            min = Number(list[i].amount);
+            minIndex = i;
         }
     }
-
 
     totalAmount.textContent = total.toFixed(2);
     expensesCount.textContent = list.length;
     highestExpense.textContent = max.toFixed(2);
+    minExpense.textContent = min.toFixed(2);
 
-    if (highestIndex == -1)
+    if (highestIndex == -1) {
         highestTitle.textContent = "--";
-    else
+    } else {
         highestTitle.textContent = list[highestIndex].title;
+    }
 
-
-
+    if (minIndex == -1) {
+        minTitle.textContent = "--";
+    } else {
+        minTitle.textContent = list[minIndex].title;
+    }
 }
 
 function applyFilter() {
@@ -413,6 +509,7 @@ async function refresh() {
     renderTable(expensesList);
 
     renderSummary(expensesList);
+    renderCategoryChart(expensesList);
 
 }
 

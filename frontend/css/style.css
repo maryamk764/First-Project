@@ -18,7 +18,7 @@
 
 .summary-grid {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(4, 1fr);
     gap: 1.5rem;
     margin-top: 1rem;
 }
@@ -53,4 +53,13 @@
 p {
    margin-top: 0;
    margin-bottom: 0rem;
+}
+
+
+.chart-container {
+    position: relative;
+    height: 500px;
+    width: 100%;
+   margin: 0 auto;
+    max-width: 500px;
 }

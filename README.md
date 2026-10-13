@@ -62,4 +62,12 @@ The backend will run on: http://localhost:3000
 
 The part that was a little difficult for me was understanding how fetch and APIs work together. What helped me was the resources shared by the engineers, searching for some concepts that I did not understand, and applying them practically while working on the project.
 
+<!-- Video Link -->
+<!-- https://drive.google.com/file/d/1kFHlxAbackq2fbUYM1E5H33Z6uj_Nfb4/view?usp=sharing -->
+
+
+<!-- GitHub Link -->
+<!-- https://github.com/maryamk764/First-Project.git -->
+
+
 
